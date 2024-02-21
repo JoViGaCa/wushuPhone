@@ -27,7 +27,7 @@ public class MainActivity extends Activity {
     private static final int REQUEST_DISCOVER_BT = 1;
     Context context;
     // Buttons Used
-    Button turnOnOff, serviceStart,button, serviceStop;
+    Button turnOnOff, serviceStart, serviceStop;
     // Text views Used
     TextView statusBL, statusService;
     BluetoothAdapter blAdapter;
@@ -35,12 +35,7 @@ public class MainActivity extends Activity {
     BluetoothSocket blSocket;
     bluetoothHandler blHandler = null;
     nlService nlS;
-    TextView tempText;
-
-
-
-
-
+    
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,11 +44,10 @@ public class MainActivity extends Activity {
         turnOnOff = findViewById(R.id.buttonOnOff);
         serviceStart = findViewById(R.id.buttonStartService);
         serviceStop = findViewById(R.id.buttonStopService);
-        button = findViewById(R.id.button);
+
 
         statusBL = findViewById(R.id.textBTStatus);
         statusService = findViewById(R.id.textStartService);
-        tempText = findViewById(R.id.textTempDatabase);
 
         blAdapter = BluetoothAdapter.getDefaultAdapter();
         context = getApplicationContext();
@@ -144,16 +138,6 @@ public class MainActivity extends Activity {
             }
         });
 
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(blHandler == null){
-                    tempText.setText("blHandler is null");
-                } else {
-                    tempText.setText(blHandler.getSchedules());
-                }
-            }
-        });
 
 
 
