@@ -64,6 +64,7 @@ public class bluetoothHandler extends Thread {
         bhOutStream = tmpOut;
     }
 
+
     public void run() {
         mmBuffer = new byte[buffSize];
         int numBytes; // bytes returned from read()
