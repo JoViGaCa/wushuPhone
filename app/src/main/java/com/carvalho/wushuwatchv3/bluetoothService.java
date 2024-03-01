@@ -1,5 +1,7 @@
 package com.carvalho.wushuwatchv3;
 
+import static android.content.ContentValues.TAG;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -14,6 +16,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.IBinder;
+import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,6 +36,8 @@ public class bluetoothService extends Service {
     bluetoothHandler blHandler = null;
     Context context;
     TextView statusService;
+    bluetoothSocketHandler blServer;
+    MainActivity act;
     UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
     @SuppressLint("MissingPermission")
     @Override
@@ -49,20 +54,10 @@ public class bluetoothService extends Service {
             }
         }
 
-        try {
-            blSocket = wushuWatch.createRfcommSocketToServiceRecord(uuid);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        try {
-            blSocket.connect();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
 
         // create thread to keep connecting device
-        blHandler = new bluetoothHandler(blSocket, context);
-        blHandler.start();
+        blServer = new bluetoothSocketHandler(blAdapter, context);
+        blServer.start();
 
         // create notification
         final String CHANNELID = "FOREGROUNG SERVICE ID";
@@ -74,7 +69,7 @@ public class bluetoothService extends Service {
             );
             getSystemService(NotificationManager.class).createNotificationChannel(channel);
             Notification.Builder notification = new Notification.Builder(context, CHANNELID)
-                    .setContentText("Service is running")
+                    .setContentText("Service running")
                     .setContentTitle("WushuWatchV3")
                     .setSmallIcon(R.drawable.ic_launcher_background);
 
@@ -91,6 +86,10 @@ public class bluetoothService extends Service {
         return null;
     }
     // WIP
+
+    public void setActivity(MainActivity act){
+        this.act = act;
+    }
 
 
 }
