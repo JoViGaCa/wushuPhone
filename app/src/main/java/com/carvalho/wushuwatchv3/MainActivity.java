@@ -1,8 +1,14 @@
 package com.carvalho.wushuwatchv3;
 
+import static android.content.ContentValues.TAG;
+
 import android.Manifest;
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
@@ -11,11 +17,14 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 
 import java.io.IOException;
@@ -35,7 +44,7 @@ public class MainActivity extends Activity {
     BluetoothSocket blSocket;
     bluetoothHandler blHandler = null;
     nlService nlS;
-    
+
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,6 +59,11 @@ public class MainActivity extends Activity {
         statusService = findViewById(R.id.textStartService);
 
         blAdapter = BluetoothAdapter.getDefaultAdapter();
+        int requestCode = 1;
+        Intent discoverableIntent =
+                new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+        discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 3600);
+        startActivityForResult(discoverableIntent, requestCode);
         context = getApplicationContext();
         nlS = new nlService();
 
@@ -65,7 +79,7 @@ public class MainActivity extends Activity {
             statusBL.setText("Bluetooth not available");
         }
 
-        if(foregroundServiceRunning()){
+        if (foregroundServiceRunning()) {
             statusService.setText("Service Running");
         } else {
             statusService.setText("Service not Running");
@@ -101,7 +115,7 @@ public class MainActivity extends Activity {
         serviceStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(blAdapter != null) {
+                if (blAdapter != null) {
                     if (blAdapter.isEnabled()) {
                         if (!foregroundServiceRunning()) {
                             Intent serviceIntent = new Intent(context, bluetoothService.class);
@@ -130,7 +144,7 @@ public class MainActivity extends Activity {
             public void onClick(View v) {
                 Intent serviceIntent = new Intent(context, bluetoothService.class);
                 stopService(serviceIntent);
-                if(foregroundServiceRunning()){
+                if (foregroundServiceRunning()) {
                     statusService.setText("Service Running");
                 } else {
                     statusService.setText("Service not Running");
@@ -139,14 +153,12 @@ public class MainActivity extends Activity {
         });
 
 
-
-
     }
 
-    public boolean foregroundServiceRunning(){
+    public boolean foregroundServiceRunning() {
         ActivityManager activityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-        for(ActivityManager.RunningServiceInfo service : activityManager.getRunningServices(Integer.MAX_VALUE)){
-            if(bluetoothService.class.getName().equals(service.service.getClassName())){
+        for (ActivityManager.RunningServiceInfo service : activityManager.getRunningServices(Integer.MAX_VALUE)) {
+            if (bluetoothService.class.getName().equals(service.service.getClassName())) {
                 return true;
             }
         }
